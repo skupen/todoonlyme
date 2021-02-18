@@ -5,12 +5,18 @@ class TodoList {
         this.ul = ul
         this.input = input
 
+        this.items = []
+
         this.button.onclick = () => {
-            this.pridat();
+            this.render(this.pridat(this.input.value));
         }
 
         this.AJAXButton.onclick = () => {
             this.AJAXFun();
+        }
+        
+        window.onload = () => {
+            this.init();
         }
 
         addEventListener("click", this.delete);
@@ -18,12 +24,29 @@ class TodoList {
         addEventListener("click", this.editAction);
     }
 
-    pridat(){
-        const input = this.input.value;
+    init(){
+        this.items = (JSON.parse(window.localStorage.getItem("items"))) ?? [];
+        console.log(this.items);
+
+        for (let index = 0; index < this.items.length; index++) {
+            this.render(document.createTextNode(this.items[index]));      
+        }
+        
+    }
+
+    pridat(text){
+        const spanText = document.createTextNode(text);
+
+        this.items.push(spanText.textContent);
+        window.localStorage.setItem("items",JSON.stringify(this.items));
+        
+        return spanText;
+    }
+
+    render(text){
         const li = document.createElement("li");
         const span = document.createElement("span");
-        const spanText = document.createTextNode(input);
-        span.appendChild(spanText);
+        span.appendChild(text);
         li.appendChild(span);
 
         const deleteButton = li.appendChild(document.createElement("button"));
@@ -33,6 +56,7 @@ class TodoList {
         
         this.ul.appendChild(li);
     }
+
 
     delete(e){
         if(e.target.id == "deleteButton"){
@@ -71,7 +95,6 @@ class TodoList {
         request.onreadystatechange  = function(){  
         if (request.readyState == 4) {  
             var jsonObj = JSON.parse(request.responseText);//JSON.parse() returns JSON object
-            console.log(jsonObj);
             document.getElementById("AJAXButton").innerHTML =  jsonObj;  
             }  
         }
