@@ -8,7 +8,7 @@ class TodoList {
         this.items = []
 
         this.button.onclick = () => {
-            this.render(this.pridat(this.input.value));
+            this.render(this.pridat(this.input.value), this.items.length - 1);
         }
 
         this.AJAXButton.onclick = () => {
@@ -19,19 +19,24 @@ class TodoList {
             this.init();
         }
 
-        addEventListener("click", this.delete);
+        addEventListener("click", this.delete.bind(this));
         addEventListener("dblclick", this.editInput.bind(this));
         addEventListener("click", this.editAction);
     }
 
     init(){
-        this.items = (JSON.parse(window.localStorage.getItem("items"))) ?? [];
+        this.items = JSON.parse(window.localStorage.getItem("items")) ?? [];
         console.log(this.items);
 
-        for (let index = 0; index < this.items.length; index++) {
-            this.render(document.createTextNode(this.items[index]));      
-        }
+        this.rerenderList();
         
+    }
+
+    rerenderList(){
+        this.ul.innerHTML = "";
+        for (let index = 0; index < this.items.length; index++) {
+            this.render(document.createTextNode(this.items[index]), index);      
+        }
     }
 
     pridat(text){
@@ -43,11 +48,13 @@ class TodoList {
         return spanText;
     }
 
-    render(text){
+    render(text, index){
         const li = document.createElement("li");
         const span = document.createElement("span");
         span.appendChild(text);
         li.appendChild(span);
+
+        li.setAttribute("data-index", index);
 
         const deleteButton = li.appendChild(document.createElement("button"));
         const buttonText = document.createTextNode("x");
@@ -59,7 +66,18 @@ class TodoList {
 
 
     delete(e){
-        if(e.target.id == "deleteButton"){
+        if(e.target.id == "deleteButton"){ 
+            this.items.splice(e.target.parentNode.getAttribute("data-index"),1);
+            window.localStorage.setItem("items",JSON.stringify(this.items)); 
+            this.rerenderList();
+            //e.target.parentNode.remove();
+            return;
+            for (let index = 0; index < this.items.length; index++) {
+                if (e.target.previousElementSibling.textContent == this.items[index]) {
+                    this.items.splice(this.items[index],1);
+                    window.localStorage.setItem("items",JSON.stringify(this.items));    
+                }
+            }
             e.target.parentNode.remove();
         }
     }
