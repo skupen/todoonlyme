@@ -59,19 +59,24 @@ class TodoList {
         li.appendChild(span);
 
         li.setAttribute("data-index", index);
+        
+        li.setAttribute("x-data", "{ editActive: false }");
+        span.setAttribute("x-on:dblclick", "editActive = true");
+        span.setAttribute("x-show", "!editActive");
 
         const deleteButton = li.appendChild(document.createElement("button"));
         const buttonText = document.createTextNode("x");
         deleteButton.appendChild(buttonText);
         deleteButton.id = "deleteButton"
 
+        deleteButton.setAttribute("x-show", "!editActive");
+
         this.ul.appendChild(li);
 
         l("span click register event callback");
         span.ondblclick = (e) => {
-
             l("span click");
-            this.editInput(e);
+            this.editInput(e, text);
         }
 
         deleteButton.onclick = (e) => {
@@ -88,8 +93,9 @@ class TodoList {
         return;
     }
 
-    editInput(e) {
+    editInput(e, text) {
         const newInput = document.createElement("input");
+        newInput.value = text.textContent;
         const editButton = document.createElement("button");
         const editButtonText = document.createTextNode("edit");
         editButton.appendChild(editButtonText);
